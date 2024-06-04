@@ -31,15 +31,15 @@ const login = async (req, res) => {
     try {
         const { email, password } = req.body
         const user = await findUserByEmail(email)
-        if (!user) return res.send('Invalid Credentials!')
+        if (!user) return res.status(500).json({ success: false, message: 'Invalid Credentials!', data: null })
 
         const passwordCompare = await compareHash(password, user.password)
-        if (!passwordCompare) return res.send("Invalid Credentials!")
+        if (!passwordCompare) return res.status(500).json({ success: false, message: 'Invalid Credentials!', data: null })
 
         const token = jwt.sign({ email: user.email, username: user.username }, config.secretKey, { expiresIn: '7d' })
         const generateToken = await saveToken({ token, user: user.id })
 
-        res.send(token)
+        return res.status(200).json({ success: true, message: 'success', data: { token: generateToken.token } })
     } catch (error) {
         console.log(error);
         res.send('Something went wrong!')
