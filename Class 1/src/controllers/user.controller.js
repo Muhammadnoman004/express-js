@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { createUser, findUserByEmail, saveToken } = require('../services/user.service')
+const { createUser, findUserByEmail, saveToken, getTokenByUid } = require('../services/user.service')
 const { createHash, compareHash } = require('../utils/hash.util')
 const { config } = require('../configs/server.config')
 
@@ -33,6 +33,9 @@ const login = async (req, res) => {
         const user = await findUserByEmail(email)
         if (!user) return res.status(500).json({ success: false, message: 'Invalid Credentials!', data: null })
 
+        const isUserAlreadyLoggedin = await getTokenByUid(user.id)
+        if (isUserAlreadyLoggedin?.length > 0) return res.status(500).json({ success: false, message: 'already logged in', data: null })
+
         const passwordCompare = await compareHash(password, user.password)
         if (!passwordCompare) return res.status(500).json({ success: false, message: 'Invalid Credentials!', data: null })
 
@@ -46,7 +49,16 @@ const login = async (req, res) => {
     }
 }
 
+const logOut = async (req, res) => {
+    try {
+        res.send('logout!')
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     signup,
-    login
+    login,
+    logOut
 }

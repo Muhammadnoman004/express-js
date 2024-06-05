@@ -30,8 +30,18 @@ const saveToken = async (payload) => {
     }
 }
 
+const getTokenByUid = async (uid) => {
+    try {
+        const response = await Token.find({ user: uid })
+        return response
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     createUser,
     findUserByEmail,
-    saveToken
+    saveToken,
+    getTokenByUid
 }
