@@ -39,9 +39,19 @@ const getTokenByUid = async (uid) => {
     }
 }
 
+const deleteTokensByUid = async (uid) => {
+    try {
+        const response = await Token.deleteMany({ user: uid })
+        return response
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     createUser,
     findUserByEmail,
     saveToken,
-    getTokenByUid
+    getTokenByUid,
+    deleteTokensByUid
 }

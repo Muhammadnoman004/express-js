@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { createUser, findUserByEmail, saveToken, getTokenByUid } = require('../services/user.service')
+const { createUser, findUserByEmail, saveToken, getTokenByUid, deleteTokensByUid } = require('../services/user.service')
 const { createHash, compareHash } = require('../utils/hash.util')
 const { config } = require('../configs/server.config')
 
@@ -51,9 +51,16 @@ const login = async (req, res) => {
 
 const logOut = async (req, res) => {
     try {
-        res.send('logout!')
+        const { uid } = req.body
+        const LogOutUser = await deleteTokensByUid(uid)
+
+        if (LogOutUser.deletedCount === 0) {
+            return res.status(500).json({ success: false, message: 'already logged Out', data: null })
+        }
+
+        res.status(200).json({ success: true, message: 'Logged Out Successfully', data: null })
     } catch (error) {
-        throw error
+        res.status(500).json({ success: false, message: 'already logged in', data: null })
     }
 }
 
