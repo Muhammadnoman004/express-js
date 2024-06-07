@@ -28,6 +28,6 @@ const PORT = config.appPort;
             console.log(`My Server Listening on PORT ${PORT}`);
         })
     } catch (error) {
-        console.error(error)
+        console.error("error ==>", error)
     }
 })()
