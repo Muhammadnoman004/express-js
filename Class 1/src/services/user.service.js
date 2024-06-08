@@ -48,10 +48,23 @@ const deleteTokensByUid = async (uid) => {
     }
 }
 
+const updateUserByEmail = async (email) => {
+    try {
+        const response = await User.updateOne(
+            { email: email }, // filter User email
+            { isActive: true } // data to update user 
+        )
+        return response
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     createUser,
     findUserByEmail,
     saveToken,
     getTokenByUid,
-    deleteTokensByUid
+    deleteTokensByUid,
+    updateUserByEmail
 }

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { createUser, findUserByEmail, saveToken, getTokenByUid, deleteTokensByUid } = require('../services/user.service')
+const { createUser, findUserByEmail, saveToken, getTokenByUid, deleteTokensByUid, updateUserByEmail } = require('../services/user.service')
 const { createHash, compareHash } = require('../utils/hash.util')
 const { config } = require('../configs/server.config')
 
@@ -33,6 +33,10 @@ const login = async (req, res) => {
         const user = await findUserByEmail(email)
         if (!user) return res.status(500).json({ success: false, message: 'Invalid Credentials!', data: null })
 
+        if (!user.isActive) {
+            return res.status(500).json({ success: false, message: 'Plzz Verify Your OTP first', data: null })
+        }
+
         const isUserAlreadyLoggedin = await getTokenByUid(user.id)
         if (isUserAlreadyLoggedin?.length > 0) return res.status(500).json({ success: false, message: 'already logged in', data: null })
 
@@ -64,8 +68,25 @@ const logOut = async (req, res) => {
     }
 }
 
+const verifyOTP = async (req, res) => {
+    try {
+        const { email, otp } = req.body
+        const user = await findUserByEmail(email)
+        if (!user) return res.send('unprocessible request')
+
+        if (user.otp !== otp) return res.send('Invalid OTP')
+
+        const verified = await updateUserByEmail(user.email)
+        return res.send('OTP verified')
+
+    } catch (error) {
+        return res.send('Something went wrong')
+    }
+}
+
 module.exports = {
     signup,
     login,
-    logOut
+    logOut,
+    verifyOTP
 }
