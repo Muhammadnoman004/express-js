@@ -2,12 +2,13 @@ const jwt = require('jsonwebtoken')
 const { createUser, findUserByEmail, saveToken, getTokenByUid, deleteTokensByUid, updateUserByEmail } = require('../services/user.service')
 const { createHash, compareHash } = require('../utils/hash.util')
 const { config } = require('../configs/server.config')
+const { sendErrorResponse, sendSuccessResponse } = require('../utils/responsehandler.util')
 
 const signup = async (req, res) => {
     try {
         const { username, email, password } = req.body
         const user = await findUserByEmail(email)
-        if (user) return res.send("Email already exist")
+        if (user) return sendErrorResponse(res, null, 'Email already exist')
 
         const hashedPassword = await createHash(password)
 
@@ -18,38 +19,38 @@ const signup = async (req, res) => {
         }
         const newUser = await createUser(payload)
         if (!newUser) {
-            res.send('something went wrong!')
+            return sendErrorResponse(res, null, 'something went wrong!')
         }
-        return res.send("signup successfully")
+        return sendSuccessResponse(res, null, "signup successfully")
 
     } catch (error) {
         console.log(error)
-        res.send('something went wrong!')
+        sendErrorResponse(res, null, 'something went wrong!')
     }
 }
 const login = async (req, res) => {
     try {
         const { email, password } = req.body
         const user = await findUserByEmail(email)
-        if (!user) return res.status(500).json({ success: false, message: 'Invalid Credentials!', data: null })
+        if (!user) return sendErrorResponse(res, null, 'Invalid Credentials!')
 
         if (!user.isActive) {
-            return res.status(500).json({ success: false, message: 'Plzz Verify Your OTP first', data: null })
+            return sendErrorResponse(res, null, 'Plzz Verify Your OTP first')
         }
 
         const isUserAlreadyLoggedin = await getTokenByUid(user.id)
-        if (isUserAlreadyLoggedin?.length > 0) return res.status(500).json({ success: false, message: 'already logged in', data: null })
+        if (isUserAlreadyLoggedin?.length > 0) return sendErrorResponse(res, null, 'already logged in')
 
         const passwordCompare = await compareHash(password, user.password)
-        if (!passwordCompare) return res.status(500).json({ success: false, message: 'Invalid Credentials!', data: null })
+        if (!passwordCompare) return sendErrorResponse(res, null, 'Invalid Credentials!')
 
         const token = jwt.sign({ email: user.email, username: user.username }, config.secretKey, { expiresIn: '7d' })
         const generateToken = await saveToken({ token, user: user.id })
 
-        return res.status(200).json({ success: true, message: 'success', data: { token: generateToken.token } })
+        return sendSuccessResponse(res, { token: generateToken.token }, 'Login Successfully')
     } catch (error) {
         console.log(error);
-        res.send('Something went wrong!')
+        sendErrorResponse(res, null, 'Something went wrong!')
     }
 }
 
@@ -59,12 +60,12 @@ const logOut = async (req, res) => {
         const LogOutUser = await deleteTokensByUid(uid)
 
         if (LogOutUser.deletedCount === 0) {
-            return res.status(500).json({ success: false, message: 'already logged Out', data: null })
+            return sendErrorResponse(res, null, 'Already logged Out')
         }
 
-        res.status(200).json({ success: true, message: 'Logged Out Successfully', data: null })
+        return sendSuccessResponse(res, null, 'Log Out Successfully')
     } catch (error) {
-        res.status(500).json({ success: false, message: 'already logged in', data: null })
+        sendErrorResponse(res, null, 'Already logged in')
     }
 }
 
@@ -74,13 +75,14 @@ const verifyOTP = async (req, res) => {
         const user = await findUserByEmail(email)
         if (!user) return res.send('unprocessible request')
 
-        if (user.otp !== otp) return res.send('Invalid OTP')
+        if (user.otp !== otp) return sendErrorResponse(res, null, 'Invalid OTP')
+
 
         const verified = await updateUserByEmail(user.email)
-        return res.send('OTP verified')
+        return sendSuccessResponse(res, null, 'OTP Verified')
 
     } catch (error) {
-        return res.send('Something went wrong')
+        return sendErrorResponse(res, null, 'Something went wrong!')
     }
 }
 
