@@ -6,6 +6,8 @@ const { corsConfig } = require('./src/configs/cors.config');
 const { route: userRoute } = require('./src/routes/user.routes');
 const { route: todoRoute } = require('./src/routes/todo.routes');
 const { DB_RETRY_LIMIT, DB_RETRY_TIMEOUT } = require('./src/constants/constants');
+const dummyJob1 = require('./src/jobs/dummyJob1');
+const dummyJob2 = require('./src/jobs/dummyJob2');
 
 let connectionRetry = 0
 const connectDB = async () => {
@@ -41,6 +43,9 @@ const PORT = config.appPort;
 
         app.use('/user', userRoute)
         app.use('/todo', todoRoute)
+
+        dummyJob1.start()
+        dummyJob2.start()
 
         app.get('*', (req, res) => {
             res.send('Invalid Routes!')
