@@ -1,6 +1,6 @@
-const crone = require('node-cron')
+const cron = require('node-cron')
 
-const dummyJob1 = crone.schedule('* * * * *', () => {
+const dummyJob1 = cron.schedule('* * * * *', () => {
     console.log("Hi from Crone Job 1");
 })
 
