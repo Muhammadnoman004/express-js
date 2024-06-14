@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const { validationResult } = require('express-validator')
 const { createUser, findUserByEmail, saveToken, getTokenByUid, deleteTokensByUid, updateUserByEmail } = require('../services/user.service')
 const { createHash, compareHash } = require('../utils/hash.util')
 const { config } = require('../configs/server.config')
@@ -6,6 +7,12 @@ const { sendErrorResponse, sendSuccessResponse } = require('../utils/responsehan
 
 const signup = async (req, res) => {
     try {
+
+        const error = validationResult(req)
+        if (!error.isEmpty()) {
+            return sendErrorResponse(res, error.array(), 'Validation error')
+        }
+
         const { username, email, password } = req.body
         const user = await findUserByEmail(email)
         if (user) return sendErrorResponse(res, null, 'Email already exist')
