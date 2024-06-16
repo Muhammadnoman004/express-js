@@ -1,15 +1,29 @@
-const { todo: Todo } = require('../models/index')
+const { todo: Todo, todoItems: TodoItems } = require('../models/index')
 
 const createTodoCategory = async (data) => {
     try {
+
         const newTodo = new Todo({ name: data.name, createdBy: data.uid })
         const response = await newTodo.save()
         return response
+
+    } catch (error) {
+        throw error
+    }
+}
+
+const getTodoCategoryByID = async (todoID) => {
+    try {
+
+        const Response = await Todo.findById(todoID).populate(['createdBy'])
+        return Response
+
     } catch (error) {
         throw error
     }
 }
 
 module.exports = {
-    createTodoCategory
+    createTodoCategory,
+    getTodoCategoryByID
 }
