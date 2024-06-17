@@ -1,5 +1,5 @@
 // const { validationResult } = require("express-validator");
-const { createTodoCategory, getTodoCategoryByID } = require("../services/todo.service")
+const { createTodoCategory, getTodoCategoryByID, createTodoListItem } = require("../services/todo.service")
 const { sendSuccessResponse, sendErrorResponse } = require("../utils/responsehandler.util")
 
 const createTodo = async (req, res) => {
@@ -35,7 +35,29 @@ const getTodoItem = async (req, res) => {
     }
 }
 
+const createTodoitem = async (req, res) => {
+    try {
+        const { todoID } = req.params
+        const { name } = req.body
+
+        const response = await createTodoListItem({ name }) // {_id : 232kkmkm}
+        const getTodoCategory = await getTodoCategoryByID(todoID)
+
+        if (!getTodoCategory) return sendErrorResponse(res, null, `Category by ${todoID} not exists`)
+
+        getTodoCategory.todoList.push(response.id)
+        await getTodoCategory.save()
+
+        return sendSuccessResponse(res, response, 'success')
+
+
+    } catch (error) {
+        return sendErrorResponse(res, error, 'Something went wrong')
+    }
+}
+
 module.exports = {
     createTodo,
-    getTodoItem
+    getTodoItem,
+    createTodoitem
 }

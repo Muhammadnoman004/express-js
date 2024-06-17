@@ -15,8 +15,20 @@ const createTodoCategory = async (data) => {
 const getTodoCategoryByID = async (todoID) => {
     try {
 
-        const Response = await Todo.findById(todoID).populate(['createdBy'])
+        const Response = await Todo.findById(todoID).populate(['createdBy', 'todoList'])
         return Response
+
+    } catch (error) {
+        throw error
+    }
+}
+
+const createTodoListItem = async (data) => {
+    try {
+
+        const newTodoListItem = new TodoItems({ ...data })
+        const response = await newTodoListItem.save()
+        return response
 
     } catch (error) {
         throw error
@@ -25,5 +37,6 @@ const getTodoCategoryByID = async (todoID) => {
 
 module.exports = {
     createTodoCategory,
-    getTodoCategoryByID
+    getTodoCategoryByID,
+    createTodoListItem
 }
