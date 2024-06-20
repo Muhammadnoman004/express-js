@@ -35,8 +35,18 @@ const createTodoListItem = async (data) => {
     }
 }
 
+const deleteTodoItemByID = async (uid) => {
+    try {
+        const response = await TodoItems.deleteMany({ todoList: uid })
+        return response
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     createTodoCategory,
     getTodoCategoryByID,
-    createTodoListItem
+    createTodoListItem,
+    deleteTodoItemByID
 }

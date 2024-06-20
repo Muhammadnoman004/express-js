@@ -1,5 +1,5 @@
 // const { validationResult } = require("express-validator");
-const { createTodoCategory, getTodoCategoryByID, createTodoListItem } = require("../services/todo.service")
+const { createTodoCategory, getTodoCategoryByID, createTodoListItem, deleteTodoItemByID } = require("../services/todo.service")
 const { sendSuccessResponse, sendErrorResponse } = require("../utils/responsehandler.util")
 
 const createTodo = async (req, res) => {
@@ -42,7 +42,7 @@ const createTodoitem = async (req, res) => {
 
         const response = await createTodoListItem({ name }) // {_id : 232kkmkm}
         const getTodoCategory = await getTodoCategoryByID(todoID)
-
+        console.log(getTodoCategory);
         if (!getTodoCategory) return sendErrorResponse(res, null, `Category by ${todoID} not exists`)
 
         getTodoCategory.todoList.push(response.id)
@@ -56,8 +56,26 @@ const createTodoitem = async (req, res) => {
     }
 }
 
+const deleteTodoItem = async (req, res) => {
+    try {
+        console.log(req.body);
+        const { uid } = req.body
+
+        const deletetodo = await deleteTodoItemByID(uid)
+
+        if (deletetodo.deletedCount === 0) {
+            return sendErrorResponse(res, null, 'Todo already deleted ')
+        }
+
+        return sendSuccessResponse(res, null, 'Todo deleted successfully')
+    } catch (error) {
+        sendErrorResponse(res, null, 'Something went wrong')
+    }
+}
+
 module.exports = {
     createTodo,
     getTodoItem,
-    createTodoitem
+    createTodoitem,
+    deleteTodoItem
 }
