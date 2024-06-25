@@ -16,6 +16,7 @@ const getTodoCategoryByID = async (todoID) => {
     try {
 
         const Response = await Todo.findById(todoID).populate(['createdBy', 'todoList'])
+        console.log("response ==>", Response);
         return Response
 
     } catch (error) {
@@ -37,7 +38,7 @@ const createTodoListItem = async (data) => {
 
 const deleteTodoItemByID = async (uid) => {
     try {
-        const response = await TodoItems.deleteMany({ todoList: uid })
+        const response = await Todo.deleteMany({ todoList: uid })
         return response
     } catch (error) {
         throw error
